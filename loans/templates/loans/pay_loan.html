@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+    <title>Pay Loan</title>
+    <script type="text/javascript">
+        function updateBalance() {
+            // Get the initial balance and repayment amount
+            var initialBalance = parseFloat(document.getElementById('initialBalance').value);
+            var repaymentAmount = parseFloat(document.getElementById('id_amount').value);
+
+            // Ensure repaymentAmount is a valid number
+            if (isNaN(repaymentAmount) || repaymentAmount < 0) {
+                repaymentAmount = 0;
+            }
+
+            // Calculate the updated balance
+            var updatedBalance = initialBalance - repaymentAmount;
+
+            // Ensure updatedBalance is not negative
+            if (updatedBalance < 0) {
+                updatedBalance = 0;
+            }
+
+            // Update the displayed balance
+            document.getElementById('updatedBalance').innerText = updatedBalance.toFixed(2);
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Pay Loan</h1>
+    <form method="post">
+        {% csrf_token %}
+        <!-- {{ form.as_p }} -->
+
+        <!-- Hidden field to store the initial balance -->
+        <input type="hidden" id="initialBalance" value="{{ loan.balance }}">
+
+        <!-- Display the current balance -->
+        <p>Current Balance: Ksh <span id="updatedBalance">{{ loan.balance }}</span></p>
+
+        <!-- Repayment input field with oninput event to call updateBalance function -->
+        <input type="number" id="id_amount" name="amount" placeholder="Enter amount to repay" oninput="updateBalance()">
+
+        <button type="submit">Pay Loan</button>
+    </form>
+    {% endblock content %}

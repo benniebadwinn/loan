@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <title>Your Loans</title>
+    <style>
+        /* Your CSS styling */
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Include jQuery -->
+
+    <script>
+        $(document).ready(function() {
+            // When the lend loan link is clicked
+            $('a.lend-loan').click(function(e) {
+                e.preventDefault();
+                var loanId = $(this).data('loan-id'); // Get the loan ID
+    
+                // Redirect to lend loan view with loan ID
+                window.location.href = "" + loanId;
+            });
+    
+            // When the status dropdown changes
+            $('select[name="status"]').change(function() {
+                var status = $(this).val(); // Get the selected status
+                var loanId = $(this).closest('form').find('input[name="loan_id"]').val(); // Get the loan ID
+                
+                // Send an AJAX request to update loan status
+                $.ajax({
+                    url: "{% url 'loans:loan_list' %}", // URL to your Django view
+                    type: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}", // CSRF token
+                        loan_id: loanId, // Loan ID
+                        status: status // Selected status
+                    },
+                    success: function(response) {
+                        console.log("Loan status updated successfully.");
+                        // Optionally update UI or show success message
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error updating loan status:", error);
+                        // Handle errors
+                    }
+                });
+            });
+    
+            // Automatically submit the form when select dropdown changes
+            $('.auto-submit').change(function() {
+                $(this).closest('form').submit(); // Submit the closest form
+            });
+        });
+    </script>
+    
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="{% url 'payments:send_b2c' %}">lend</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Your Loans</h1>
+        <a href="{% url 'loans:request_loan' %}">Request a New Loan</a>
+        {% for loan in loans %}
+        <div class="card">
+            <h2>Loan ID: {{ loan.id }}</h2>
+            <p>Loan Amount: {{ loan.amount }}</p>
+            <p>Paid: {{ loan.amount_paid }}</p>
+            {% if loan.amount_paid %}
+                <p>Payment Date(s):</p>
+                <ul>
+                    {% for payment in loan.payment_set.all %}
+                        <li>{{ payment.amount }} - {{ payment.date_paid }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <p class="balance">Balance: {{ loan.balance }}</p>
+            <p>Due Date:
+                {% if loan.due_date %}
+                    {% if loan.due_date < now %}
+                        <span class="overdue">{{ loan.due_date }} ({{ loan.days_overdue }} days overdue)</span>
+                    {% else %}
+                        {{ loan.due_date }}
+                    {% endif %}
+                {% else %}
+                    Not specified
+                {% endif %}
+            </p>
+            <p>Status: {{ loan.get_status_display }}</p> <!-- Display loan status -->
+            {% if not loan.paid %}
+                
+            {% endif %}
+
+            <!-- Update Loan Status Form -->
+            <form method="post" action="{% url 'loans:loan_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                <label for="status">Update Status:</label>
+                <select name="status" id="status" class="auto-submit">
+                    <option value="In Review" {% if loan.status == 'In Review' %}selected{% endif %}>In Review</option>
+                    <option value="approved" {% if loan.status == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="declined" {% if loan.status == 'declined' %}selected{% endif %}>Declined</option>
+                </select>
+            </form>
+            
+            <!-- Link to Lend Loan -->
+    
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Automatically submit the form when select dropdown changes
+        $('.auto-submit').change(function() {
+            $(this).closest('form').submit(); // Submit the closest form
+        });
+    </script>
+{% endblock %}

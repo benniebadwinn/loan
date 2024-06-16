@@ -1,0 +1,21 @@
+# integration_app/views.py
+
+from django.shortcuts import render
+from .utils import send_b2c_transaction
+
+def send_b2c(request):
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        recipient_phone = request.POST.get('recipient_phone')
+        
+        # Call the TASSEND B2C integration function
+        transaction = send_b2c_transaction(amount, recipient_phone)
+        
+        if transaction:
+            # Handle successful response
+            return render(request, 'success.html', {'transaction': transaction})
+        else:
+            # Handle error
+            return render(request, 'error.html')
+    
+    return render(request, 'send_b2c_form.html')

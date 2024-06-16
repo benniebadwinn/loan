@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Request Loan</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const paymentPeriodField = document.querySelector("#id_payment_period");
+            const amountField = document.querySelector("#id_amount");
+            
+            const dueDateField = document.createElement("p");
+            dueDateField.id = "due-date-display";
+            paymentPeriodField.parentNode.appendChild(dueDateField);
+
+            const amountToPayBackField = document.createElement("p");
+            amountToPayBackField.id = "amount-to-pay-back-display";
+            paymentPeriodField.parentNode.insertBefore(amountToPayBackField, dueDateField);
+
+            function updateFields() {
+                const today = new Date();
+                let paymentPeriod = parseInt(paymentPeriodField.value);
+                let amount = parseFloat(amountField.value);
+                let interestRate;
+                
+                if (paymentPeriod) {
+                    let dueDate = new Date();
+                    dueDate.setDate(today.getDate() + paymentPeriod);
+                    dueDateField.textContent = "Due Date: " + dueDate.toDateString();
+
+                    if (paymentPeriod === 15) {
+                        interestRate = 0.20;
+                    } else if (paymentPeriod === 30) {
+                        interestRate = 0.25;
+                    }
+
+                    if (!isNaN(amount) && interestRate !== undefined) {
+                        let amountToPayBack = amount + (amount * interestRate);
+                        amountToPayBackField.textContent = "Amount to Pay Back: Ksh " + amountToPayBack.toFixed(2);
+                    } else {
+                        amountToPayBackField.textContent = "";
+                    }
+                } else {
+                    dueDateField.textContent = "";
+                    amountToPayBackField.textContent = "";
+                }
+            }
+
+            paymentPeriodField.addEventListener("change", updateFields);
+            amountField.addEventListener("input", updateFields);
+            updateFields();  // Initial call to set the due date and amount to pay back if there are default values
+        });
+    </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Loan</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .blacklist-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Request Loan</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if blacklist_message %}
+                <p class="blacklist-message">{{ blacklist_message }}</p>
+            {% endif %}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    {% endblock content %}
+</body>
+</html>

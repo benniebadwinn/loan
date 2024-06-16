@@ -1,0 +1,150 @@
+
+
+
+<!-- payment.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntaSend Payment Example</title>
+    
+    <!-- IntaSend inline JavaScript SDK -->
+    <script src="https://unpkg.com/intasend-inlinejs-sdk@4.0.0/build/intasend-inline.js"></script>
+    
+    <!-- Custom CSS for button styling -->
+    <style>
+        .intaSendPayButton {
+            background: #8CC63F;
+            border-radius: 3px;
+            border: 1px solid #8CC63F;
+            color: #fff;
+            height: 34px;
+            width: 120px;
+            cursor: pointer;
+        }
+        .intaSendPayButton:hover {
+            background: #6C993B;
+            border-color: #6C993B;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Your content here -->
+<h1>Confirm</h1>
+
+<!-- Payment form -->
+<form method="post" action="{% url 'payments:send_b2c' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    
+    <!-- Payment buttons -->
+    <button class="intaSendPayButton" data-amount="10" data-currency="KES">Lend Now</button>
+    <!-- <button class="intaSendPayButton" data-method="M-PESA" data-amount="10" data-currency="KES">Pay with M-Pesa</button> -->
+</form>
+
+<!-- IntaSend settings script -->
+<script>
+    new window.IntaSend({
+        publicAPIKey: "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f",
+        live: false // Set to true when going live
+    })
+    .on("COMPLETE", (results) => {
+        console.log("Payment completed:", results);
+        // Add your logic for successful payment completion
+    })
+    .on("FAILED", (results) => {
+        console.log("Payment failed:", results);
+        // Add your logic for payment failure
+    })
+    .on("IN-PROGRESS", (results) => {
+        console.log("Payment in progress:", results);
+        // Redirect or show approval popup when payment is in progress
+        showApprovalPopup(results.transaction_id);  // Assuming you have access to transaction_id
+    });
+
+    function showApprovalPopup(transactionId) {
+        // Replace with your logic to show a popup or redirect to approval page
+        if (confirm("Do you want to approve the payment with transaction ID: " + transactionId + "?")) {
+            // User clicked OK, approve the transaction
+            approveTransaction(transactionId);
+        } else {
+            // User clicked Cancel or closed the popup, handle accordingly
+            console.log("User declined to approve payment.");
+        }
+    }
+
+    function approveTransaction(transactionId) {
+        // Example AJAX call to approve the transaction
+        fetch('/approve-transaction/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ transaction_id: transactionId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Transaction approved:", data);
+            // Handle success or error response from approval endpoint
+        })
+        .catch(error => {
+            console.error("Error approving transaction:", error);
+        });
+    }
+
+    // Function to get CSRF token for AJAX requests
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+   
+
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('select[name="loan_id"]').change(function() {
+            var loanId = $(this).val();
+            if (loanId) {
+                $.ajax({
+                    url: '{% url "loans:get_user_info" %}',
+                    data: {
+                        'loan_id': loanId
+                    },
+                    success: function(data) {
+                        $('input[name="full_name"]').val(data.full_name);
+                        $('input[name="contact"]').val(data.contact);
+                        $('input[name="loan_amount"]').val(data.loan_amount);
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        console.log("Failed to fetch user info");
+                    }
+                });
+            } else {
+                $('input[name="full_name"]').val('');
+                $('input[name="contact"]').val('');
+                $('input[name="loan_amount"]').val('');
+            }
+        });
+    });
+
+    
+</script>
+
+</body>
+</html>

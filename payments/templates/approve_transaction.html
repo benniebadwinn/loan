@@ -1,0 +1,59 @@
+<!-- approve_transaction.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approve Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .transaction-details {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .transaction-details h2 {
+            margin-top: 0;
+        }
+        .btn-approve {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .btn-approve:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Approve Transaction</h1>
+
+<div class="transaction-details">
+    <h2>Transaction Details</h2>
+    <p><strong>Transaction ID:</strong> {{ transaction_id }}</p>
+    <p><strong>Recipient Name:</strong> {{ recipient_name }}</p>
+    <p><strong>Recipient Phone:</strong> {{ recipient_phone }}</p>
+    <p><strong>Amount:</strong> {{ amount }}</p>
+    <p><strong>Narrative:</strong> {{ narrative }}</p>
+</div>
+
+<form method="post" action="{% url 'payments:approve_transaction' %}">
+    {% csrf_token %}
+    <input type="hidden" name="transaction_id" value="{{ transaction_id }}">
+    <button type="submit" class="btn-approve">Approve Transaction</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!-- templates/transaction_details.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction Details</title>
+</head>
+<body>
+    <h1>Transaction Details</h1>
+    <p>Tracking ID: {{ tracking_id }}</p>
+    <p>Recipient Name: {{ recipient_name }}</p>
+    <p>Recipient Phone: {{ recipient_phone }}</p>
+    <p>Amount: {{ amount }}</p>
+    <p>Narrative: {{ narrative }}</p>
+    <h2>Approved Response</h2>
+    <pre>{{ approved_response }}</pre>
+</body>
+</html>

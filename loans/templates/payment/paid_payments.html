@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}<!-- templates/paid_payments.html -->
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    h1, h2 {
+        text-align: center;
+        margin: 20px 0;
+    }
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin: 20px 0;
+    }
+    table {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ccc;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    a {
+        color: #007BFF;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    p {
+        text-align: center;
+    }
+    @media screen and (max-width: 768px) {
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+        tr {
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        td {
+            border: none;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 50%;
+            text-align: right;
+        }
+        td:before {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+            text-align: left;
+            font-weight: bold;
+            content: attr(data-label);
+        }
+    }
+</style>
+</head>
+<body>
+<h2>Paid Transactions</h2>
+<div class="table-container">
+    <table>
+    <thead>
+        <tr>
+            <th>Tr No.</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Reference</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in paid_payments %}
+            <tr>
+                <td data-label="#">{{ forloop.counter }}</td>
+                <td data-label="First Name">{{ payment.first_name }}</td>
+                <td data-label="Last Name">{{ payment.last_name }}</td>
+                <td data-label="Email">{{ payment.email }}</td>
+                <td data-label="Phone">{{ payment.phone }}</td>
+                <td data-label="Amount">{{ payment.amount }}</td>
+                <td data-label="Description">{{ payment.description }}</td>
+                <td data-label="Reference">{{ payment.reference }}</td>
+                <td data-label="Actions">
+                    <a href="{% url 'payment:reverse_payment' payment.id %}">Initiate Reversal</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+<h2>Unpaid Transactions</h2>
+<div class="table-container">
+    <table>
+    <thead>
+        <tr>
+            <th>Tr No.</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Reference</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in unpaid_payments %}
+            <tr>
+                <td data-label="#">{{ forloop.counter }}</td>
+                <td data-label="First Name">{{ payment.first_name }}</td>
+                <td data-label="Last Name">{{ payment.last_name }}</td>
+                <td data-label="Email">{{ payment.email }}</td>
+                <td data-label="Phone">{{ payment.phone }}</td>
+                <td data-label="Amount">{{ payment.amount }}</td>
+                <td data-label="Description">{{ payment.description }}</td>
+                <td data-label="Reference">{{ payment.reference }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+<p><a href="{% url 'nova_main:index' %}">Back to Home</a></p>
+</body>
+{% endblock content %}
